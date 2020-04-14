@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
  
 class Form extends Component {
     constructor(props) {
@@ -7,27 +8,38 @@ class Form extends Component {
             name: '',
             price: '',
             notes: '',
-            id: Math.random()
+            id: 0
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
     }
 
-handleChange = (e) => {
-    this.setState({[e.target.name]:e.target.value});
-}
-
-handleFormSubmit = (e) => {
-    e.preventDefault();
-    if(localStorage.getItem('testorders')){
-        var object = [JSON.parse(localStorage.getItem('testorders'))]
-        object.push(this.state)
-        console.log(object);
-        localStorage.setItem('testorders',JSON.stringify(object));
-    }else{
-        localStorage.setItem('testorders',JSON.stringify(this.state));
+    handleChange = (e) => {
+        this.setState({[e.target.name]:e.target.value});
     }
-}
+
+    object = [];
+    handleFormSubmit = (e) => {
+        e.preventDefault();
+        this.setState(prevState => {
+            return {
+                id: prevState.id + 1,
+                status: "Added Successfully"
+            }
+        })
+        if(localStorage.getItem('testorders')){
+            this.object = [];
+            for(var i = 0; i < (JSON.parse(localStorage.getItem('testorders'))).length; i++) {
+                this.object.push((JSON.parse(localStorage.getItem('testorders')))[i]);
+            }
+            this.object.push(this.state)
+            localStorage.setItem('testorders',JSON.stringify(
+                this.object
+            ));
+        }else{
+            localStorage.setItem('testorders',JSON.stringify([this.state]));
+        }
+    }
 
 render() {
     const formStyle ={ 
@@ -68,10 +80,12 @@ render() {
                     onChange={this.handleChange} 
                 />
             </div>
+            <p className="msg msg-success">{ this.state.status }</p>
             <button type="submit" className="btn btn-primary">Submit</button>
+            <Link className="btn btn-primary" to="/" >View Orders</Link>
         </form>
     )
-}
+    }
 }
 
 export default Form;
